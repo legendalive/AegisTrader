@@ -1,56 +1,7 @@
 import { appConfig } from "./config/app.config.js";
-
-function $(selector, root = document) {
-  return root.querySelector(selector);
-}
-
-function $$(selector, root = document) {
-  return Array.from(root.querySelectorAll(selector));
-}
-
-function setText(id, value) {
-  const el = document.getElementById(id);
-  if (el) {
-    el.textContent = value;
-  }
-}
-
-function setDotClass(id, className) {
-  const el = document.getElementById(id);
-  if (!el) return;
-
-  el.classList.remove("good", "warn", "bad", "idle");
-  el.classList.add(className);
-}
-
-function showPage(pageName) {
-  $$(".page").forEach((page) => {
-    page.classList.remove("active");
-  });
-
-  $$(".nav-btn").forEach((btn) => {
-    btn.classList.remove("active");
-  });
-
-  const page = $(`#page-${pageName}`);
-  const navButton = $(`.nav-btn[data-page="${pageName}"]`);
-
-  if (page) page.classList.add("active");
-  if (navButton) navButton.classList.add("active");
-}
-
-function toast(message) {
-  const toastEl = $("#toast");
-  if (!toastEl) return;
-
-  toastEl.textContent = message;
-  toastEl.classList.add("show");
-
-  clearTimeout(toastEl._timer);
-  toastEl._timer = setTimeout(() => {
-    toastEl.classList.remove("show");
-  }, 3000);
-}
+import { initDB } from "./modules/state.js";
+import { log } from "./modules/logs.js";
+import { $, $$, setText, setDotClass, showPage, toast, renderTable } from "./modules/ui.js";
 
 function bindNavigation() {
   $$(".nav-btn").forEach((btn) => {
@@ -65,8 +16,9 @@ function bindNavigation() {
 
 function bindFeatureButtons() {
   $$("[data-feature]").forEach((btn) => {
-    btn.addEventListener("click", () => {
+    btn.addEventListener("click", async () => {
       const feature = btn.dataset.feature;
+      await log('INFO', 'ui', appConfig.network.default, `Button clicked: ${feature}`);
       toast(`${feature} will be connected in the next module.`);
     });
   });
@@ -212,7 +164,14 @@ function renderStaticData() {
   setDotClass("kill-dot", "good");
 }
 
-function init() {
+async function init() {
+  try {
+    await initDB();
+    await log('INFO', 'app', appConfig.network.default, 'AegisTrader initialized successfully');
+  } catch (err) {
+    console.error('Failed to initialize DB', err);
+  }
+
   bindNavigation();
   bindFeatureButtons();
   renderStaticData();
