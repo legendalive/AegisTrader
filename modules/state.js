@@ -86,6 +86,15 @@ export async function putItem(storeName, item) {
   });
 }
 
+export async function getItem(storeName, key) {
+  const store = getStore(storeName);
+  return new Promise((resolve, reject) => {
+    const req = store.get(key);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
 export async function getAllItems(storeName) {
   const store = getStore(storeName);
   return new Promise((resolve, reject) => {
