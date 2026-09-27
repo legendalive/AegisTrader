@@ -1,9 +1,13 @@
 import * as api from "./api.js";
 
 export async function getMarketSnapshot(network, symbol, interval, limit = 100) {
-  await api.ping(network);
+  let serverTime;
 
-  const serverTime = await api.getTime(network);
+  try {
+    serverTime = await api.getTime(network);
+  } catch {
+    serverTime = Date.now();
+  }
 
   const [klines, ticker] = await Promise.all([
     api.getKlines(network, symbol, interval, limit),
@@ -24,7 +28,7 @@ export async function getMarketSnapshot(network, symbol, interval, limit = 100) 
     };
   });
 
-  if (candles.length < 2) {
+  if (!Array.isArray(candles) || candles.length < 2) {
     throw new Error("Not enough candle data received from Binance.");
   }
 
