@@ -1,15 +1,17 @@
 import { appConfig } from "./config/app.config.js";
-import { initDB } from "./modules/state.js";
+import { initDB, STORES, addItem, getAllItems } from "./modules/state.js";
 import { log, getLogs, clearLogs } from "./modules/logs.js";
 import { $, $$, setText, setDotClass, showPage, toast, renderTable } from "./modules/ui.js";
 import * as vault from "./modules/vault.js";
 import * as api from "./modules/api.js";
 import { getMarketSnapshot } from "./modules/market.js";
+import { evaluateEntrySignal } from "./modules/strategy.js";
 
 const appState = {
   network: appConfig.network.default,
   connection: "Disconnected",
-  market: null
+  market: null,
+  lastSignal: null
 };
 
 function showModal(title, message, fields = []) {
@@ -86,6 +88,52 @@ async function renderLogs() {
   }
 }
 
+async function renderSignals() {
+  try {
+    const signals = await getAllItems(STORES.SIGNALS);
+
+    const latest = signals
+      .slice(-100)
+      .reverse()
+      .map((signal) => {
+        return {
+          ...signal,
+          timestamp: signal.timestamp.replace("T", " ").slice(0, 19),
+          price: formatNumber(signal.price, 2),
+          aiConfidence: signal.aiConfidence === null
+            ? "-"
+            : `${(signal.aiConfidence * 100).toFixed(1)}%`
+        };
+      });
+
+    renderTable(
+      "signals-table-body",
+      ["timestamp", "symbol", "side", "price", "aiConfidence", "decision", "reason"],
+      latest
+    );
+
+    if (latest.length > 0) {
+      setText("dashboard-last-signal", latest[0].decision);
+    }
+  } catch (err) {
+    console.error("Failed to render signals", err);
+  }
+}
+
+async function saveSignalIfNew(signal) {
+  const signals = await getAllItems(STORES.SIGNALS);
+
+  const exists = signals.some((existing) => {
+    return existing.network === signal.network &&
+      existing.symbol === signal.symbol &&
+      existing.candleOpenTime === signal.candleOpenTime;
+  });
+
+  if (!exists) {
+    await addItem(STORES.SIGNALS, signal);
+  }
+}
+
 function download(filename, text) {
   const blob = new Blob([text], { type: "application/json" });
   const url = URL.createObjectURL(blob);
@@ -156,6 +204,10 @@ async function handleRefreshMarketData() {
       setConnection("Public connected", "good");
     }
 
+    const signal = evaluateEntrySignal(snapshot);
+
+    appState.lastSignal = signal;
+
     setText("market-symbol", snapshot.symbol);
     setText("market-interval", snapshot.interval);
     setText("market-last-price", formatNumber(snapshot.currentCandle.close, 2));
@@ -165,15 +217,25 @@ async function handleRefreshMarketData() {
     setText("market-volume", formatNumber(snapshot.closedCandle.volume, 2));
     setText("market-data-freshness", `Server ${new Date(snapshot.serverTime).toISOString().slice(11, 19)} UTC`);
 
-    setText("market-ema-20", "-");
-    setText("market-ema-50", "-");
-    setText("market-rsi-14", "-");
-    setText("market-atr-14", "-");
+    setText("market-ema-20", formatNumber(signal.indicators.ema20, 2));
+    setText("market-ema-50", formatNumber(signal.indicators.ema50, 2));
+    setText("market-rsi-14", formatNumber(signal.indicators.rsi14, 2));
+    setText("market-atr-14", formatNumber(signal.indicators.atr14, 2));
+
+    setText("dashboard-last-signal", signal.decision);
+
+    await saveSignalIfNew(signal);
+    await renderSignals();
 
     const activeEndpoint = api.getActivePublicBaseUrl();
 
-    toast("Market data refreshed.", "success");
-    await log("INFO", "market", appState.network, `Market snapshot refreshed for ${snapshot.symbol} via ${activeEndpoint}.`);
+    toast(`Market refreshed. Decision: ${signal.decision}`, "success");
+    await log(
+      "INFO",
+      "strategy",
+      appState.network,
+      `Signal evaluation completed: ${signal.decision}. Reason: ${signal.reason}`
+    );
   } catch (err) {
     setText("market-data-freshness", "Error");
 
@@ -600,6 +662,7 @@ async function init() {
   updateClock();
 
   await renderLogs();
+  await renderSignals();
 
   setInterval(updateClock, 1000);
 }
