@@ -119,13 +119,16 @@ async function handleConnectBinance() {
     setText("connection-status", "Connecting...");
     setDotClass("connection-dot", "warn");
 
-    await api.ping(appState.network);
-    await api.getTime(appState.network);
+    const activeEndpoint = await api.testPublicConnection(
+      appState.network,
+      appConfig.trading.symbol,
+      appConfig.trading.interval
+    );
 
     setConnection("Public connected", "good");
 
-    toast("Binance public connection successful.", "success");
-    await log("INFO", "api", appState.network, "Public Binance connection successful.");
+    toast(`Connected via ${activeEndpoint}`, "success");
+    await log("INFO", "api", appState.network, `Public Binance connection successful via ${activeEndpoint}.`);
   } catch (err) {
     setConnection("Disconnected", "bad");
 
@@ -149,6 +152,10 @@ async function handleRefreshMarketData() {
 
     appState.market = snapshot;
 
+    if (appState.connection !== "Public connected") {
+      setConnection("Public connected", "good");
+    }
+
     setText("market-symbol", snapshot.symbol);
     setText("market-interval", snapshot.interval);
     setText("market-last-price", formatNumber(snapshot.currentCandle.close, 2));
@@ -163,8 +170,10 @@ async function handleRefreshMarketData() {
     setText("market-rsi-14", "-");
     setText("market-atr-14", "-");
 
+    const activeEndpoint = api.getActivePublicBaseUrl();
+
     toast("Market data refreshed.", "success");
-    await log("INFO", "market", appState.network, `Market snapshot refreshed for ${snapshot.symbol}.`);
+    await log("INFO", "market", appState.network, `Market snapshot refreshed for ${snapshot.symbol} via ${activeEndpoint}.`);
   } catch (err) {
     setText("market-data-freshness", "Error");
 
