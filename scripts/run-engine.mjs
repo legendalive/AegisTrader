@@ -20,6 +20,29 @@ const apiSecret =
     ? process.env.BINANCE_LIVE_API_SECRET
     : process.env.BINANCE_TESTNET_API_SECRET;
 
+const statePath = "state/engine-state.json";
+const killSwitchPath = "state/kill-switch.json";
+
+function readKillSwitch() {
+  try {
+    if (fs.existsSync(killSwitchPath)) {
+      return JSON.parse(fs.readFileSync(killSwitchPath, "utf8"));
+    }
+  } catch (err) {
+    console.error("Failed to read kill switch file.", err);
+  }
+
+  return {
+    enabled: false,
+    reason: ""
+  };
+}
+
+function writeState(state) {
+  fs.mkdirSync(path.dirname(statePath), { recursive: true });
+  fs.writeFileSync(statePath, JSON.stringify(state, null, 2));
+}
+
 if (!apiKey || !apiSecret) {
   console.log("No API keys configured. Exiting.");
   process.exit(0);
@@ -31,7 +54,6 @@ const { evaluateAiConfidence } = await import("../modules/ai.js");
 const { evaluateRisk } = await import("../modules/risk.js");
 const executor = await import("../modules/executor.js");
 
-const statePath = "state/engine-state.json";
 const today = new Date().toISOString().slice(0, 10);
 
 let state = {
@@ -39,7 +61,15 @@ let state = {
   lastCandleOpenTime: 0,
   tradesCount: 0,
   dailyLossUsedPct: 0,
-  cooldownUntilCandle: 0
+  cooldownUntilCandle: 0,
+  lastRunAt: null,
+  lastRunStatus: "NOT_RUN",
+  lastDecision: null,
+  lastReason: null,
+  lastNetwork: network,
+  lastSymbol: symbol,
+  lastInterval: interval,
+  lastTrade: null
 };
 
 try {
@@ -60,11 +90,30 @@ if (state.date !== today) {
   state.dailyLossUsedPct = 0;
 }
 
+const killSwitch = readKillSwitch();
+
 const snapshot = await getMarketSnapshot(network, symbol, interval, 100);
 const closedOpenTime = snapshot.closedCandle.openTime;
 
 if (state.lastCandleOpenTime === closedOpenTime) {
   console.log("No new closed candle. Exiting.");
+  process.exit(0);
+}
+
+state.lastRunAt = new Date().toISOString();
+state.lastNetwork = network;
+state.lastSymbol = symbol;
+state.lastInterval = interval;
+
+if (killSwitch.enabled === true) {
+  state.lastRunStatus = "KILL_SWITCH";
+  state.lastDecision = "KILL_SWITCH";
+  state.lastReason = killSwitch.reason || "Kill switch enabled.";
+  state.lastCandleOpenTime = closedOpenTime;
+
+  writeState(state);
+
+  console.log("Kill switch enabled. No trades will be placed.");
   process.exit(0);
 }
 
@@ -106,6 +155,9 @@ if (decision === "SIGNAL") {
   }
 }
 
+state.lastDecision = decision;
+state.lastReason = reason;
+
 console.log(
   JSON.stringify(
     {
@@ -137,6 +189,17 @@ if (decision === "APPROVED" && !accountState.hasPosition) {
   );
 
   state.tradesCount += 1;
+  state.lastRunStatus = "TRADED";
+
+  state.lastTrade = {
+    time: state.lastRunAt,
+    symbol,
+    side: "LONG",
+    entryPrice: result.entryPrice,
+    quantity: result.quantity,
+    stopPrice: result.stopPrice,
+    takeProfitPrice: result.takeProfitPrice
+  };
 
   console.log(
     JSON.stringify(
@@ -151,11 +214,14 @@ if (decision === "APPROVED" && !accountState.hasPosition) {
       2
     )
   );
+} else if (decision === "APPROVED" && accountState.hasPosition) {
+  state.lastRunStatus = "POSITION_ALREADY_OPEN";
+} else {
+  state.lastRunStatus = "NO_TRADE";
 }
 
 state.lastCandleOpenTime = closedOpenTime;
 
-fs.mkdirSync(path.dirname(statePath), { recursive: true });
-fs.writeFileSync(statePath, JSON.stringify(state, null, 2));
+writeState(state);
 
 console.log("Engine state updated.");
