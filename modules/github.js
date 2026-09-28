@@ -11,9 +11,11 @@ async function githubFetch(url, options = {}) {
       "X-GitHub-Api-Version": "2022-11-28"
     }
   });
+  
   if (!res.ok) {
     const errText = await res.text();
-    throw new Error(`GitHub API ${res.status}`);
+    // This will now show the exact reason for the 404/403
+    throw new Error(`GitHub API ${res.status}: ${errText}`);
   }
   return res.status === 204 ? null : res.json();
 }
