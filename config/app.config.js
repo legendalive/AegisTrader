@@ -10,7 +10,7 @@ export const appConfig = Object.freeze({
 
   proxy: Object.freeze({
     enabled: true,
-    url: "https://binance-proxy.mbenson-mb62.workers.dev" // <-- PASTE YOUR WORKER URL HERE
+    url: "https://binance-proxy.mbenson-mb62.workers.dev"
   }),
 
   network: Object.freeze({
