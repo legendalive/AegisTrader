@@ -1,7 +1,11 @@
 export const appConfig = Object.freeze({
   app: Object.freeze({
     name: "AegisTrader",
-    version: "0.1.0"
+    version: "0.2.0"
+  }),
+
+  github: Object.freeze({
+    rawBase: "https://raw.githubusercontent.com/legendalive/AegisTrader/main"
   }),
 
   network: Object.freeze({
