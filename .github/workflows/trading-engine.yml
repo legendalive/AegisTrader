@@ -1,0 +1,49 @@
+name: Trading Engine
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: trading-engine
+  cancel-in-progress: false
+
+jobs:
+  run-engine:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    env:
+      TRADE_NETWORK: testnet
+      TRADE_SYMBOL: BTCUSDT
+      TRADE_INTERVAL: 15m
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Run trading engine
+        env:
+          BINANCE_TESTNET_API_KEY: ${{ secrets.BINANCE_TESTNET_API_KEY }}
+          BINANCE_TESTNET_API_SECRET: ${{ secrets.BINANCE_TESTNET_API_SECRET }}
+        run: node scripts/run-engine.mjs
+
+      - name: Commit engine state
+        run: |
+          git config user.name "AegisTrader Bot"
+          git config user.email "aegistrader-bot@users.noreply.github.com"
+          git add state/engine-state.json
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: update engine state"
+            git push
+          fi
