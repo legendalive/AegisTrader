@@ -211,30 +211,62 @@ function bindFeatureButtons() {
       if (feature === "Export Logs") { await handleExportLogs(); return; }
       if (feature === "Clear Logs") { await handleClearLogs(); return; }
 
-      // GitHub API Triggers
+            // GitHub API Triggers
       const token = vault.getGithubToken();
       
       if (feature === "Flatten All" || feature === "Flatten Position") { 
         if (!token) { toast("Save GitHub Token in Vault first.", "warning"); return; }
         showLoading("Triggering Flatten All...");
-        try { await github.triggerWorkflow("flatten.yml", token); toast("Flatten All workflow triggered.", "success"); } 
-        catch (err) { toast("Trigger failed: " + err.message, "error"); }
+        try { 
+            await github.triggerWorkflow("flatten.yml", token); 
+            toast("Flatten All workflow triggered.", "success"); 
+            await log("INFO", "github", appState.network, "Flatten All workflow triggered.");
+        } catch (err) { 
+            toast("Trigger failed: " + err.message, "error"); 
+            await log("ERROR", "github", appState.network, "Flatten trigger failed: " + err.message);
+        }
         hideLoading(); return; 
       }
 
       if (feature === "Cancel Open Orders" || feature === "Cancel All Orders" || feature === "Cancel Protective Order") { 
         if (!token) { toast("Save GitHub Token in Vault first.", "warning"); return; }
         showLoading("Triggering Cancel Orders...");
-        try { await github.triggerWorkflow("cancel-orders.yml", token); toast("Cancel Orders workflow triggered.", "success"); } 
-        catch (err) { toast("Trigger failed: " + err.message, "error"); }
+        try { 
+            await github.triggerWorkflow("cancel-orders.yml", token); 
+            toast("Cancel Orders workflow triggered.", "success"); 
+            await log("INFO", "github", appState.network, "Cancel Orders workflow triggered.");
+        } catch (err) { 
+            toast("Trigger failed: " + err.message, "error"); 
+            await log("ERROR", "github", appState.network, "Cancel trigger failed: " + err.message);
+        }
         hideLoading(); return; 
       }
 
       if (feature === "Enable Kill Switch") {
         if (!token) { toast("Save GitHub Token in Vault first.", "warning"); return; }
         showLoading("Enabling Kill Switch...");
-        try { await github.updateKillSwitch(true, token); toast("Kill Switch enabled.", "success"); } 
-        catch (err) { toast("Failed: " + err.message, "error"); }
+        try { 
+            await github.updateKillSwitch(true, token); 
+            toast("Kill Switch enabled.", "success"); 
+            await log("INFO", "github", appState.network, "Kill switch enabled.");
+        } catch (err) { 
+            toast("Failed: " + err.message, "error"); 
+            await log("ERROR", "github", appState.network, "Kill switch enable failed: " + err.message);
+        }
+        hideLoading(); return;
+      }
+
+      if (feature === "Disable Kill Switch") {
+        if (!token) { toast("Save GitHub Token in Vault first.", "warning"); return; }
+        showLoading("Disabling Kill Switch...");
+        try { 
+            await github.updateKillSwitch(false, token); 
+            toast("Kill Switch disabled.", "success"); 
+            await log("INFO", "github", appState.network, "Kill switch disabled.");
+        } catch (err) { 
+            toast("Failed: " + err.message, "error"); 
+            await log("ERROR", "github", appState.network, "Kill switch disable failed: " + err.message);
+        }
         hideLoading(); return;
       }
 
