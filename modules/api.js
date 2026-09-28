@@ -122,7 +122,7 @@ async function privateRequest(path, params = {}, method = "GET", network, apiKey
   const baseUrl = getPrivateBaseUrl(network);
   const proxy = useProxy();
   const requestUrl = proxy ? appConfig.proxy.url : baseUrl;
-  
+
   const timestamp = Date.now() + serverTimeOffset;
   params.timestamp = timestamp;
   params.recvWindow = 5000;
@@ -175,23 +175,28 @@ async function privateRequest(path, params = {}, method = "GET", network, apiKey
 }
 
 export async function ping(network) { return publicRequest("/api/v3/ping", {}, { network }); }
+
 export async function getTime(network) {
   const data = await publicRequest("/api/v3/time", {}, { network });
   serverTimeOffset = data.serverTime - Date.now();
   return data.serverTime;
 }
+
 export function getServerTimeOffset() { return serverTimeOffset; }
 export function getTimestamp() { return Date.now() + serverTimeOffset; }
 
 export async function getKlines(network, symbol, interval, limit = 100) {
   return publicRequest("/api/v3/klines", { symbol, interval, limit }, { network });
 }
+
 export async function getBookTicker(network, symbol) {
   return publicRequest("/api/v3/ticker/bookTicker", { symbol }, { network });
 }
+
 export async function getExchangeInfo(network, symbol) {
   return publicRequest("/api/v3/exchangeInfo", { symbol }, { network });
 }
+
 export async function testPublicConnection(network, symbol, interval) {
   await getTime(network);
   await getKlines(network, symbol, interval, 2);
@@ -202,12 +207,15 @@ export async function testPublicConnection(network, symbol, interval) {
 export async function getAccount(network, apiKey, apiSecret) {
   return privateRequest("/api/v3/account", {}, "GET", network, apiKey, apiSecret);
 }
+
 export async function getOpenOrders(network, symbol, apiKey, apiSecret) {
   return privateRequest("/api/v3/openOrders", { symbol }, "GET", network, apiKey, apiSecret);
 }
+
 export async function createOrder(network, params, apiKey, apiSecret) {
   return privateRequest("/api/v3/order", params, "POST", network, apiKey, apiSecret);
 }
+
 export async function cancelAllOrders(network, symbol, apiKey, apiSecret) {
   try {
     return await privateRequest("/api/v3/openOrders", { symbol }, "DELETE", network, apiKey, apiSecret);
@@ -215,7 +223,8 @@ export async function cancelAllOrders(network, symbol, apiKey, apiSecret) {
     if (err.code === -2011) return [];
     throw err;
   }
-  export async function getMyTrades(network, symbol, apiKey, apiSecret) {
-  return privateRequest("/api/v3/myTrades", { symbol, limit: 50 }, "GET", network, apiKey, apiSecret);
 }
+
+export async function getMyTrades(network, symbol, apiKey, apiSecret) {
+  return privateRequest("/api/v3/myTrades", { symbol, limit: 50 }, "GET", network, apiKey, apiSecret);
 }
