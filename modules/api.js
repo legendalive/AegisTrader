@@ -215,4 +215,7 @@ export async function cancelAllOrders(network, symbol, apiKey, apiSecret) {
     if (err.code === -2011) return [];
     throw err;
   }
+  export async function getMyTrades(network, symbol, apiKey, apiSecret) {
+  return privateRequest("/api/v3/myTrades", { symbol, limit: 50 }, "GET", network, apiKey, apiSecret);
+}
 }
