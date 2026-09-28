@@ -49,6 +49,7 @@
       <button class="nav-btn" data-page="ai">AI Supervisor</button>
       <button class="nav-btn" data-page="risk">Risk</button>
       <button class="nav-btn" data-page="orders">Orders</button>
+      <button class="nav-btn" data-page="diagnostics">Diagnostics</button>
       <button class="nav-btn" data-page="logs">Logs</button>
       <button class="nav-btn" data-page="settings">Settings</button>
       <button class="nav-btn" data-page="vault">Vault</button>
@@ -83,12 +84,14 @@
             <button class="btn warning" data-feature="Stop Engine">Stop Engine</button>
             <button class="btn danger" data-feature="Flatten All">Flatten All</button>
             <button class="btn warning" data-feature="Cancel Open Orders">Cancel Open Orders</button>
+            <button class="btn" data-feature="Run Full Diagnostics">Run Diagnostics</button>
           </div>
         </div>
       </section>
 
       <section id="page-market" class="page">
         <h1>Market</h1>
+
         <div class="grid">
           <div class="card"><h3>Symbol</h3><div class="value" id="market-symbol">-</div></div>
           <div class="card"><h3>Interval</h3><div class="value" id="market-interval">-</div></div>
@@ -103,6 +106,7 @@
           <div class="card"><h3>Volume</h3><div class="value" id="market-volume">-</div></div>
           <div class="card"><h3>Data Freshness</h3><div class="value" id="market-data-freshness">-</div></div>
         </div>
+
         <div class="panel">
           <h2>Market Controls</h2>
           <div class="actions">
@@ -113,12 +117,33 @@
 
       <section id="page-signals" class="page">
         <h1>Signals</h1>
+
+        <div class="grid">
+          <div class="card"><h3>Engine Activity</h3><div class="value" id="signal-activity">Idle</div></div>
+          <div class="card"><h3>Last Cycle</h3><div class="value" id="signal-last-cycle">-</div></div>
+          <div class="card"><h3>Next Cycle</h3><div class="value" id="signal-next-cycle">-</div></div>
+        </div>
+
         <div class="panel">
           <h2>Signal History</h2>
           <div class="table-wrap">
             <table>
-              <thead><tr><th>Time</th><th>Symbol</th><th>Side</th><th>Price</th><th>AI Confidence</th><th>Decision</th><th>Reason</th></tr></thead>
-              <tbody id="signals-table-body"><tr><td colspan="7" class="empty">No signals yet.</td></tr></tbody>
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Symbol</th>
+                  <th>Side</th>
+                  <th>Price</th>
+                  <th>AI Confidence</th>
+                  <th>Decision</th>
+                  <th>Reason</th>
+                </tr>
+              </thead>
+              <tbody id="signals-table-body">
+                <tr>
+                  <td colspan="7" class="empty">No signals yet.</td>
+                </tr>
+              </tbody>
             </table>
           </div>
         </div>
@@ -126,8 +151,10 @@
 
       <section id="page-trading" class="page">
         <h1>Trading</h1>
+
         <div class="panel">
           <h2>Active Trade</h2>
+
           <div class="grid">
             <div class="card"><h3>Symbol</h3><div class="value" id="trade-symbol">-</div></div>
             <div class="card"><h3>Side</h3><div class="value" id="trade-side">-</div></div>
@@ -139,18 +166,34 @@
             <div class="card"><h3>Unrealized PnL</h3><div class="value" id="trade-unrealized-pnl">-</div></div>
             <div class="card"><h3>Protective Order</h3><div class="value" id="trade-protective-order">-</div></div>
           </div>
+
           <div class="actions">
             <button class="btn danger" data-feature="Flatten Position">Flatten Position</button>
             <button class="btn warning" data-feature="Cancel Protective Order">Cancel Protective Order</button>
             <button class="btn" data-feature="Recreate Protective Order">Recreate Protective Order</button>
           </div>
         </div>
+
         <div class="panel">
           <h2>Completed Trades</h2>
           <div class="table-wrap">
             <table>
-              <thead><tr><th>Trade ID</th><th>Entry Time</th><th>Exit Time</th><th>Entry Price</th><th>Exit Price</th><th>PnL</th><th>Exit Reason</th></tr></thead>
-              <tbody id="completed-trades-table-body"><tr><td colspan="7" class="empty">No completed trades yet.</td></tr></tbody>
+              <thead>
+                <tr>
+                  <th>Trade ID</th>
+                  <th>Entry Time</th>
+                  <th>Exit Time</th>
+                  <th>Entry Price</th>
+                  <th>Exit Price</th>
+                  <th>PnL</th>
+                  <th>Exit Reason</th>
+                </tr>
+              </thead>
+              <tbody id="completed-trades-table-body">
+                <tr>
+                  <td colspan="7" class="empty">No completed trades yet.</td>
+                </tr>
+              </tbody>
             </table>
           </div>
         </div>
@@ -158,6 +201,7 @@
 
       <section id="page-ai" class="page">
         <h1>AI Supervisor</h1>
+
         <div class="grid">
           <div class="card"><h3>AI Status</h3><div class="value" id="ai-status-panel">Active</div></div>
           <div class="card"><h3>Confidence Threshold</h3><div class="value" id="ai-threshold">-</div></div>
@@ -166,26 +210,32 @@
           <div class="card"><h3>Approvals Today</h3><div class="value" id="ai-approvals-today">0</div></div>
           <div class="card"><h3>Vetoes Today</h3><div class="value" id="ai-vetoes-today">0</div></div>
         </div>
+
         <div class="panel">
           <h2>Factor Breakdown</h2>
           <div class="table-wrap">
             <table>
-              <thead><tr><th>Factor</th><th>Score</th><th>Status</th><th>Reason</th></tr></thead>
-              <tbody id="ai-factor-table-body"><tr><td colspan="4" class="empty">No AI evaluation yet.</td></tr></tbody>
+              <thead>
+                <tr>
+                  <th>Factor</th>
+                  <th>Score</th>
+                  <th>Status</th>
+                  <th>Reason</th>
+                </tr>
+              </thead>
+              <tbody id="ai-factor-table-body">
+                <tr>
+                  <td colspan="4" class="empty">No AI evaluation yet.</td>
+                </tr>
+              </tbody>
             </table>
-          </div>
-        </div>
-        <div class="panel">
-          <h2>AI Controls</h2>
-          <div class="actions">
-            <button class="btn" data-feature="Re-evaluate Last Signal">Re-evaluate Last Signal</button>
-            <button class="btn" data-feature="Export AI Decisions">Export AI Decisions</button>
           </div>
         </div>
       </section>
 
       <section id="page-risk" class="page">
         <h1>Risk</h1>
+
         <div class="grid">
           <div class="card"><h3>Max Open Positions</h3><div class="value" id="risk-max-open-positions">-</div></div>
           <div class="card"><h3>Open Positions</h3><div class="value" id="risk-open-positions">0</div></div>
@@ -198,6 +248,7 @@
           <div class="card"><h3>Current Spread</h3><div class="value" id="risk-current-spread">-</div></div>
           <div class="card"><h3>Kill Switch</h3><div class="value" id="risk-kill-switch">Off</div></div>
         </div>
+
         <div class="panel">
           <h2>Risk Controls</h2>
           <div class="actions">
@@ -211,24 +262,55 @@
 
       <section id="page-orders" class="page">
         <h1>Orders</h1>
+
         <div class="panel">
           <h2>Open Orders</h2>
           <div class="table-wrap">
             <table>
-              <thead><tr><th>Order ID</th><th>Time</th><th>Side</th><th>Type</th><th>Price</th><th>Quantity</th><th>Status</th></tr></thead>
-              <tbody id="open-orders-table-body"><tr><td colspan="7" class="empty">No open orders.</td></tr></tbody>
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Time</th>
+                  <th>Side</th>
+                  <th>Type</th>
+                  <th>Price</th>
+                  <th>Quantity</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="open-orders-table-body">
+                <tr>
+                  <td colspan="7" class="empty">No open orders.</td>
+                </tr>
+              </tbody>
             </table>
           </div>
         </div>
+
         <div class="panel">
           <h2>Recent Orders</h2>
           <div class="table-wrap">
             <table>
-              <thead><tr><th>Order ID</th><th>Time</th><th>Side</th><th>Type</th><th>Price</th><th>Quantity</th><th>Status</th></tr></thead>
-              <tbody id="recent-orders-table-body"><tr><td colspan="7" class="empty">No recent orders.</td></tr></tbody>
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Time</th>
+                  <th>Side</th>
+                  <th>Type</th>
+                  <th>Price</th>
+                  <th>Quantity</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="recent-orders-table-body">
+                <tr>
+                  <td colspan="7" class="empty">No recent orders.</td>
+                </tr>
+              </tbody>
             </table>
           </div>
         </div>
+
         <div class="panel">
           <h2>Order Controls</h2>
           <div class="actions">
@@ -238,18 +320,69 @@
         </div>
       </section>
 
+      <section id="page-diagnostics" class="page">
+        <h1>Diagnostics</h1>
+
+        <div class="panel">
+          <h2>API Connectivity</h2>
+          <p class="muted">
+            Public tests do not require API keys. Private tests require the vault to be unlocked and API keys saved for the selected network.
+          </p>
+
+          <div class="actions">
+            <button class="btn" data-feature="Run Public Diagnostics">Run Public Diagnostics</button>
+            <button class="btn" data-feature="Run Private Diagnostics">Run Private Diagnostics</button>
+            <button class="btn" data-feature="Run Full Diagnostics">Run Full Diagnostics</button>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Test</th>
+                  <th>Endpoint</th>
+                  <th>Status</th>
+                  <th>Time</th>
+                  <th>Message</th>
+                </tr>
+              </thead>
+              <tbody id="diagnostics-table-body">
+                <tr>
+                  <td colspan="5" class="empty">No diagnostics run yet.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
       <section id="page-logs" class="page">
         <h1>Logs</h1>
+
         <div class="panel">
           <h2>Local Logs</h2>
+
           <div class="actions">
             <button class="btn" data-feature="Export Logs">Export Logs</button>
             <button class="btn danger" data-feature="Clear Logs">Clear Logs</button>
           </div>
+
           <div class="table-wrap">
             <table>
-              <thead><tr><th>Time</th><th>Level</th><th>Module</th><th>Network</th><th>Message</th></tr></thead>
-              <tbody id="logs-table-body"><tr><td colspan="5" class="empty">No logs yet.</td></tr></tbody>
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Level</th>
+                  <th>Module</th>
+                  <th>Network</th>
+                  <th>Message</th>
+                </tr>
+              </thead>
+              <tbody id="logs-table-body">
+                <tr>
+                  <td colspan="5" class="empty">No logs yet.</td>
+                </tr>
+              </tbody>
             </table>
           </div>
         </div>
@@ -257,9 +390,11 @@
 
       <section id="page-settings" class="page">
         <h1>Settings</h1>
+
         <div class="panel">
           <h2>Current Settings</h2>
           <div id="settings-summary" class="table-wrap"></div>
+
           <div class="actions">
             <button class="btn" data-feature="Save Settings">Save Settings</button>
             <button class="btn warning" data-feature="Reset Defaults">Reset Defaults</button>
@@ -277,6 +412,7 @@
           <p class="muted">
             Secrets are stored only in this browser. They are never committed to GitHub.
           </p>
+
           <div class="actions">
             <button class="btn" data-feature="Create Passphrase">Create Passphrase</button>
             <button class="btn" data-feature="Unlock Vault">Unlock Vault</button>
@@ -293,14 +429,6 @@
             <button class="btn danger" data-feature="Save Live Keys">Save Live Keys</button>
           </div>
         </div>
-
-        <div class="panel">
-          <h2>Vault Backup</h2>
-          <div class="actions">
-            <button class="btn" data-feature="Export Encrypted Vault">Export Encrypted Vault</button>
-            <button class="btn" data-feature="Import Encrypted Vault">Import Encrypted Vault</button>
-          </div>
-        </div>
       </section>
     </main>
   </div>
@@ -314,6 +442,11 @@
       <button id="modal-confirm" class="btn">Confirm</button>
     </div>
   </dialog>
+
+  <div id="loading-overlay" class="loading-overlay hidden">
+    <div class="spinner"></div>
+    <div id="loading-message">Working...</div>
+  </div>
 
   <div id="toast" class="toast"></div>
 
