@@ -1,11 +1,16 @@
 export const appConfig = Object.freeze({
   app: Object.freeze({
     name: "AegisTrader",
-    version: "0.2.0"
+    version: "0.2.1"
   }),
 
   github: Object.freeze({
     rawBase: "https://raw.githubusercontent.com/legendalive/AegisTrader/main"
+  }),
+
+  proxy: Object.freeze({
+    enabled: true,
+    url: "https://binance-proxy.mbenson-mb62.workers.dev" // <-- PASTE YOUR WORKER URL HERE
   }),
 
   network: Object.freeze({
