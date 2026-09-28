@@ -62,8 +62,8 @@ async function rawRequest(baseUrl, path, params = {}, options = {}) {
     });
   } catch (err) {
     clearTimeout(timeoutId);
-    if (err.name === "AbortError") throw new Error(`Public request timed out`);
-    throw new Error(`Public request failed: ${err.message}`);
+    if (err.name === "AbortError") throw new Error("Public request timed out");
+    throw new Error("Public request failed: " + err.message);
   }
 
   try {
@@ -72,11 +72,11 @@ async function rawRequest(baseUrl, path, params = {}, options = {}) {
     try { data = text ? JSON.parse(text) : null; } catch { data = text; }
 
     if (typeof data === "string" && data.trim().startsWith("<")) {
-      throw new Error(`Endpoint returned HTML instead of JSON`);
+      throw new Error("Endpoint returned HTML instead of JSON");
     }
 
     if (!response.ok) {
-      const message = data && data.msg ? data.msg : `HTTP ${response.status}`;
+      const message = data && data.msg ? data.msg : "HTTP " + response.status;
       const error = new Error(message);
       error.code = data && data.code;
       error.status = response.status;
@@ -108,7 +108,11 @@ async function publicRequest(path, params = {}, options = {}) {
 async function signRequest(secret, queryString) {
   const enc = new TextEncoder();
   const key = await crypto.subtle.importKey(
-    "raw", enc.encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]
+    "raw",
+    enc.encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
   );
   const signature = await crypto.subtle.sign("HMAC", key, enc.encode(queryString));
   return Array.from(new Uint8Array(signature))
@@ -128,11 +132,11 @@ async function privateRequest(path, params = {}, method = "GET", network, apiKey
   params.recvWindow = 5000;
 
   const queryString = Object.keys(params)
-    .map((key) => `${key}=${encodeURIComponent(params[key])}`)
+    .map((key) => key + "=" + encodeURIComponent(params[key]))
     .join("&");
 
   const signature = await signRequest(apiSecret, queryString);
-  const finalUrl = `${requestUrl}${path}?${queryString}&signature=${signature}`;
+  const finalUrl = requestUrl + path + "?" + queryString + "&signature=" + signature;
 
   const headers = { "X-MBX-APIKEY": apiKey };
   if (proxy) headers["X-Target-Base"] = baseUrl;
@@ -149,8 +153,8 @@ async function privateRequest(path, params = {}, method = "GET", network, apiKey
     });
   } catch (err) {
     clearTimeout(timeoutId);
-    if (err.name === "AbortError") throw new Error(`Signed request timed out`);
-    throw new Error(`Signed request failed: ${err.message}`);
+    if (err.name === "AbortError") throw new Error("Signed request timed out");
+    throw new Error("Signed request failed: " + err.message);
   }
 
   try {
@@ -159,11 +163,11 @@ async function privateRequest(path, params = {}, method = "GET", network, apiKey
     try { data = text ? JSON.parse(text) : null; } catch { data = text; }
 
     if (typeof data === "string" && data.trim().startsWith("<")) {
-      throw new Error(`Signed endpoint returned HTML instead of JSON`);
+      throw new Error("Signed endpoint returned HTML instead of JSON");
     }
 
     if (!response.ok) {
-      const message = data && data.msg ? data.msg : `HTTP ${response.status}`;
+      const message = data && data.msg ? data.msg : "HTTP " + response.status;
       const error = new Error(message);
       error.code = data && data.code;
       throw error;
