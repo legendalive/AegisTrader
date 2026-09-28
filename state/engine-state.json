@@ -3,5 +3,13 @@
   "lastCandleOpenTime": 0,
   "tradesCount": 0,
   "dailyLossUsedPct": 0,
-  "cooldownUntilCandle": 0
+  "cooldownUntilCandle": 0,
+  "lastRunAt": null,
+  "lastRunStatus": "NOT_RUN",
+  "lastDecision": null,
+  "lastReason": null,
+  "lastNetwork": "testnet",
+  "lastSymbol": "BTCUSDT",
+  "lastInterval": "15m",
+  "lastTrade": null
 }
