@@ -1,10 +1,10 @@
 {
   "date": "2026-10-30",
-  "lastCandleOpenTime": 1793318400000,
+  "lastCandleOpenTime": 1793339100000,
   "tradesCount": 0,
   "dailyLossUsedPct": 0,
   "cooldownUntilCandle": 0,
-  "lastRunAt": "2026-10-30T00:23:50.802Z",
+  "lastRunAt": "2026-10-30T06:06:39.356Z",
   "lastRunStatus": "KILL_SWITCH",
   "lastDecision": "KILL_SWITCH",
   "lastReason": "Kill switch enabled.",
